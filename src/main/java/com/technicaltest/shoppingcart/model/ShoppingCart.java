@@ -1,15 +1,18 @@
 package com.technicaltest.shoppingcart.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  *
  */
-@AllArgsConstructor
 public class ShoppingCart {
+
+    public ShoppingCart() {
+        this.products = new HashMap<>();
+    }
+
     /**
      *
      */
@@ -21,7 +24,7 @@ public class ShoppingCart {
      */
     @Getter
     @Setter
-    private List<Product> products;
+    private HashMap<String,Product> products;
 
 
 }

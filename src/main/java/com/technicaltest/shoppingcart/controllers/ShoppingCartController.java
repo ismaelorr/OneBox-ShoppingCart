@@ -1,9 +1,11 @@
 package com.technicaltest.shoppingcart.controllers;
 
+import com.technicaltest.shoppingcart.model.Product;
 import com.technicaltest.shoppingcart.model.ShoppingCart;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.technicaltest.shoppingcart.services.ShoppingCartService;
+import com.technicaltest.shoppingcart.services.impl.ShoppingCartServiceImpl;
+import org.springframework.web.bind.annotation.*;
+
 
 /**
  *
@@ -11,30 +13,47 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ShoppingCartController {
 
+    private ShoppingCartService shoppingCartService = new ShoppingCartServiceImpl();
+
     /**
      *
+     * @param shoppingCart
+     * @return
      */
     @PostMapping("/cart/generateCart")
-    public void generateCart(@RequestBody ShoppingCart shoppingCart){
-
+    public String generateCart(@RequestBody ShoppingCart shoppingCart){
+        return shoppingCartService.saveCarts(shoppingCart);
     }
+
     /**
      *
+     * @param cartId
+     * @return
      */
-    public void getCartInformation(){
-
+    @GetMapping("/cart/getCart/{cartId}")
+    public String getCartInformation(@PathVariable String cartId){
+        return shoppingCartService.getCartsInfo(cartId);
     }
+
     /**
      *
+     * @param cartId
+     * @param product
+     * @return
      */
-    public void addProducts(){
-
+    @PostMapping("/cart/addProducts/{cartId}")
+    public String addProducts(@PathVariable String cartId, @RequestBody Product product){
+        return shoppingCartService.addProductsImpl(cartId,product);
     }
+
     /**
      *
+     * @param cartId
+     * @return
      */
-    public void deleteCart(){
-
+    @DeleteMapping("/cart/deleteCart/{cartId}")
+    public String deleteCart(@PathVariable String cartId){
+       return shoppingCartService.deleteProductsImpl(cartId);
     }
 
 }

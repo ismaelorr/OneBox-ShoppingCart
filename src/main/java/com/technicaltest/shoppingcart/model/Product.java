@@ -10,12 +10,16 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Product {
 
+    public Product(){
+
+    }
+
     /**
      *
      */
     @Getter
     @Setter
-    private int productId;
+    private String productId;
     /**
      *
      */
