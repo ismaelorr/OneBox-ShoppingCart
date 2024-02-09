@@ -7,22 +7,31 @@ import com.technicaltest.shoppingcart.model.constants.StringConstants;
 import com.technicaltest.shoppingcart.services.ShoppingCartService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * @Author Ismael Orellana Bello
+ * @Date 09/02/2024
+ * @version 0.0.1
  *
+ * Service implementation for managing shopping carts.
  */
+@EnableScheduling
+@Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private StringConstants constants = new StringConstants();
     private HashMap<String,ShoppingCart> shoppingCarts = new HashMap<>();
 
     /**
-     *
-     * @param shoppingCart
-     * @return
+     * Saves the provided shopping cart.
+     * @param shoppingCart The shopping cart to be saved.
+     * @return A message indicating the result of the operation.
      */
     @Override
     public String saveCarts(ShoppingCart shoppingCart) {
@@ -43,9 +52,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     /**
-     *
-     * @param shoppingCartId
-     * @return
+     * Retrieves information about the shopping cart with the specified ID.
+     * @param shoppingCartId The ID of the shopping cart to retrieve information for.
+     * @return Information about the specified shopping cart.
      */
     @Override
     public String getCartsInfo(String shoppingCartId) {
@@ -56,13 +65,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 result += " have the next products:\n";
                 for (Map.Entry<String, Product> product : shoppingCart.getProducts().entrySet()) {
                     String productId = product.getKey();
-                    result+="ProductId "+ shoppingCart.getProducts().get(productId).getProductId() + " Description: "+
+                    result+=" ProductId "+ shoppingCart.getProducts().get(productId).getProductId() + " Description: "+
                             shoppingCart.getProducts().get(productId).getProductDesc() + " amount: "+
                             shoppingCart.getProducts().get(productId).getAmount();
                 }
             }
             else{
-                result+="Don´t have any products";
+                result+=" Don´t have any products";
             }
             return result;
         }catch (NullPointerException exception){
@@ -70,10 +79,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
     /**
-     *
-     * @param cartId
-     * @param product
-     * @return
+     * Adds the specified product to the shopping cart with the given ID.
+     * @param cartId The ID of the shopping cart to add the product to.
+     * @param product The product to add to the shopping cart.
+     * @return A message indicating the result of the operation.
      */
     @Override
     public String addProductsImpl(String cartId,Product product) {
@@ -97,12 +106,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return result;
     }
     /**
-     *
-     * @param shoppingCartId
-     * @return
+     * Deletes the shopping cart with the specified ID.
+     * @param shoppingCartId The ID of the shopping cart to delete.
+     * @return A message indicating the result of the operation.
      */
     @Override
-    public String deleteProductsImpl(String shoppingCartId) {
+    public String deleteCartsImpl(String shoppingCartId) {
         String result = "The cart with ID: "+shoppingCartId+" has been successfully deleted";
         try{
             if(shoppingCarts.containsKey(shoppingCartId)){
@@ -116,6 +125,29 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         finally{
             return result;
+        }
+    }
+
+    /**
+     * Scheduled method to clean up expired shopping carts.
+     */
+    @Scheduled(cron = "${cron.expression}")
+    public void cleanupExpiredShoppingCarts() {
+        long currentTime = System.currentTimeMillis();
+        ArrayList<ShoppingCart> auxCarts = new ArrayList<>();
+        for (Map.Entry<String, ShoppingCart> entry : shoppingCarts.entrySet()) {
+            ShoppingCart cart = entry.getValue();
+            if (currentTime - cart.getCreationTime() >= 600000) {
+                auxCarts.add(cart);
+            }
+            else{
+            }
+        }
+        if(auxCarts.size()>0){
+            for(ShoppingCart cart : auxCarts){
+                deleteCartsImpl(cart.getShoppinCartId());
+                System.out.println("The cart with Id: "+cart.getShoppinCartId()+ " expired");
+            }
         }
     }
 }
